@@ -23,8 +23,9 @@ import json
 #    The password looks like:
 #    NNSXS.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 #
-USER = "lora-board-dev@ttn"
-PASSWORD = "NNSXS.VFIREVW5Q5PMBXKAFOYRWURTN4V6LI56VQVJ7JA.ZEQVNJAMELPONLTWCFAY5P4OT2NOGC6TKT7IDZIRBKUXHZCA7XXA"
+
+User = "diinno@ttn"
+Password = "NNSXS.Q2COWXN4ASTUMXF7BFSWOYWNVUN7CQWJ36JPP5I.IIO255Q7NTQ2ZTN237BSKJYFZUSVNC5D4JBJGBSOPLLKBVHADDUQ"
 PUBLIC_TLS_ADDRESS = "eu1.cloud.thethings.network"
 PUBLIC_TLS_ADDRESS_PORT = 8883
 DEVICE_ID = "heltec-wireless-stick"
@@ -105,7 +106,7 @@ mqttc.on_message = on_message
 # mqttc.on_log = on_log  # Logging for debugging OK, waste
 
 # Setup authentication from settings above
-mqttc.username_pw_set(USER, PASSWORD)
+mqttc.username_pw_set(User, Password)
 
 # IMPORTANT - this enables the encryption of messages
 mqttc.tls_set()  # default certification authority of the system
