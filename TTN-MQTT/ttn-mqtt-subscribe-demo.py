@@ -36,7 +36,7 @@ def saveToFile(someJSON):
 	f_port = uplink_message["f_port"]
 	f_cnt = uplink_message["f_cnt"]
 	frm_payload = uplink_message["frm_payload"]
-    #payload = base64_to_hex(frm_payload)
+    #payload = base64_to_hex(frm_payload)B
 	rssi = uplink_message["rx_metadata"][0]["rssi"]
 	snr = uplink_message["rx_metadata"][0]["snr"]
 	data_rate_index = uplink_message["settings"]["data_rate"]
