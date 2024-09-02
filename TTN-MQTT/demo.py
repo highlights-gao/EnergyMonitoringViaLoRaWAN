@@ -71,7 +71,15 @@ class OnlineAnomalyDetector:
         return self.anomalies
 
 class PayloadDecoder:
-    pass
+    def __init__(self,payload) -> None:
+        self.payload = payload
+
+    def process_data_record1(self):
+        pass
+
+
+    def process_data_record2(self):
+        pass
 
 # 实例化检测器，假设阈值为10
 detector = OnlineAnomalyDetector(threshold=10)
