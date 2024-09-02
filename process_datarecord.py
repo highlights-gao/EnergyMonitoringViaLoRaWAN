@@ -58,60 +58,51 @@ def hex_to_signed_decimal(hex_value):
     
     return num
 
-hex_data2 = "1100000623CD00000623CD00000000000000000000000000000000000000000000610000000000610000000008010400483A68"
+hex_data2 = "1100000623CD00000623CD0000000000000000000000000000000000000000F000610000000000610000000008010400483A68"
 def process_data_record2(hex_data):
 
+    # 1. 消息头
+    message_header = hex_data[:2]
 
-# 1. 消息头
-message_header = hex_data[:2]
+    # 2. 总正向电量 (5字节)
+    total_forward_energy = hex_data[2:12]
+    total_forward_energy_int = int(total_forward_energy, 16)*0.0001
+    # 3. 正向电量1 (5字节)
+    forward_energy_1 = hex_data[12:22]
+    forward_energy_1_int = int(forward_energy_1, 16)*0.0001
+    # 4. 正向电量2 (5字节)
+    forward_energy_2 = hex_data[22:32]
+    forward_energy_2_int = int(forward_energy_2, 16)*0.0001
+    # 5. 总反向电量 (5字节)
+    total_reverse_energy = hex_data[32:42]
+    total_reverse_energy_int = int(total_reverse_energy, 16) *0.0001  
+    # 6. 反向电量1 (5字节)
+    reverse_energy_1 = hex_data[42:52]
+    reverse_energy_1_int = int(reverse_energy_1, 16)    
+    # 7. 反向电量2 (5字节)
+    reverse_energy_2 = hex_data[52:62]
+    reverse_energy_2_int = int(reverse_energy_2, 16)        
+    # 8. 总功率 (3字节)
+    total_power = hex_data[62:68]
+    total_power_signed = hex_to_signed_decimal(total_power) 
+    # 9. 相位1功率 (3字节)
+    phase_1_power = hex_data[68:74]
+    phase_1_power_signed = hex_to_signed_decimal(phase_1_power)
+          
+    # 10. 相位2功率 (3字节)
+    phase_2_power = hex_data[74:80]
+    phase_2_power_signed = hex_to_signed_decimal(phase_2_power)     
+    # 11. 相位3功率 (3字节)
+    phase_3_power = hex_data[80:86]
+    phase_3_power_signed = hex_to_signed_decimal(phase_3_power)      
+    # 12. 状态字 (4字节)
+    status_word = hex_data[86:94]
 
-# 2. 总正向电量 (5字节)
-total_forward_energy = hex_data[2:12]
-total_forward_energy_int = int(total_forward_energy, 16)*0.0001
-# 3. 正向电量1 (5字节)
-forward_energy_1 = hex_data[12:22]
-forward_energy_1_int = int(forward_energy_1, 16)
-# 4. 正向电量2 (5字节)
-forward_energy_2 = hex_data[22:32]
-forward_energy_2_int = int(forward_energy_2, 16)
-# 5. 总反向电量 (5字节)
-total_reverse_energy = hex_data[32:42]
-total_reverse_energy_int = int(total_reverse_energy, 16)    
-# 6. 反向电量1 (5字节)
-reverse_energy_1 = hex_data[42:52]
-reverse_energy_1_int = int(reverse_energy_1, 16)    
-# 7. 反向电量2 (5字节)
-reverse_energy_2 = hex_data[52:62]
-reverse_energy_2_int = int(reverse_energy_2, 16)        
-# 8. 总功率 (3字节)
-total_power = hex_data[62:68]
-total_power_int = int(total_power, 16)    
-# 9. 相位1功率 (3字节)
-phase_1_power = hex_data[68:74]
-phase_1_power_int = int(phase_1_power, 16)      
-# 10. 相位2功率 (3字节)
-phase_2_power = hex_data[74:80]
-phase_2_power_int = int(phase_2_power, 16)      
-# 11. 相位3功率 (3字节)
-phase_3_power = hex_data[80:86]
-phase_3_power_int = int(phase_3_power, 16)      
-# 12. 状态字 (4字节)
-status_word = hex_data[86:94]
+    # 13. 秒指针 (4字节)
+    second_pointer = hex_data[94:102]
+    second_pointer_int = int(second_pointer, 16)    
 
-# 13. 秒指针 (4字节)
-second_pointer = hex_data[94:102]
-second_pointer_int = int(second_pointer, 16)    
-# 打印结果
-print("消息头:", message_header)
-print("总正向电量 (hex):", total_forward_energy_int)
-print("正向电量1 (hex):", forward_energy_1)
-print("正向电量2 (hex):", forward_energy_2)
-print("总反向电量 (hex):", total_reverse_energy)
-print("反向电量1 (hex):", reverse_energy_1)
-print("反向电量2 (hex):", reverse_energy_2)
-print("总功率 (hex):", total_power)
-print("相位1功率 (hex):", phase_1_power)
-print("相位2功率 (hex):", phase_2_power)
-print("相位3功率 (hex):", phase_3_power)
-print("状态字 (hex):", status_word)
-print("秒指针 (hex):", second_pointer)
+    return total_power
+
+total = process_data_record2(hex_data2)
+print(total)
