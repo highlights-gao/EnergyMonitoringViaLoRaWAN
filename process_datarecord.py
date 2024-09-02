@@ -58,7 +58,7 @@ def hex_to_signed_decimal(hex_value):
     
     return num
 
-hex_data2 = "1100000623CD00000623CD0000000000000000000000000000000000000000F000610000000000610000000008010400483A68"
+hex_data2 = "1100000623CD00000623CD00000000000000000000000000000000000000000000610000000000610000000008010400483A68"
 def process_data_record2(hex_data):
 
     # 1. 消息头
@@ -75,26 +75,26 @@ def process_data_record2(hex_data):
     forward_energy_2_int = int(forward_energy_2, 16)*0.0001
     # 5. 总反向电量 (5字节)
     total_reverse_energy = hex_data[32:42]
-    total_reverse_energy_int = int(total_reverse_energy, 16) *0.0001  
+    total_reverse_energy_int = int(total_reverse_energy, 16)*0.0001  
     # 6. 反向电量1 (5字节)
     reverse_energy_1 = hex_data[42:52]
-    reverse_energy_1_int = int(reverse_energy_1, 16)    
+    reverse_energy_1_int = int(reverse_energy_1, 16)*0.0001     
     # 7. 反向电量2 (5字节)
     reverse_energy_2 = hex_data[52:62]
-    reverse_energy_2_int = int(reverse_energy_2, 16)        
+    reverse_energy_2_int = int(reverse_energy_2, 16)*0.0001 
     # 8. 总功率 (3字节)
     total_power = hex_data[62:68]
-    total_power_signed = hex_to_signed_decimal(total_power) 
+    total_power_signed = hex_to_signed_decimal(total_power)*0.1 
     # 9. 相位1功率 (3字节)
     phase_1_power = hex_data[68:74]
-    phase_1_power_signed = hex_to_signed_decimal(phase_1_power)
+    phase_1_power_signed = hex_to_signed_decimal(phase_1_power)*0.1 
           
     # 10. 相位2功率 (3字节)
     phase_2_power = hex_data[74:80]
-    phase_2_power_signed = hex_to_signed_decimal(phase_2_power)     
+    phase_2_power_signed = hex_to_signed_decimal(phase_2_power)*0.1      
     # 11. 相位3功率 (3字节)
     phase_3_power = hex_data[80:86]
-    phase_3_power_signed = hex_to_signed_decimal(phase_3_power)      
+    phase_3_power_signed = hex_to_signed_decimal(phase_3_power)*0.1    
     # 12. 状态字 (4字节)
     status_word = hex_data[86:94]
 
@@ -102,7 +102,7 @@ def process_data_record2(hex_data):
     second_pointer = hex_data[94:102]
     second_pointer_int = int(second_pointer, 16)    
 
-    return total_power
+    return total_power_signed
 
 total = process_data_record2(hex_data2)
 print(total)
