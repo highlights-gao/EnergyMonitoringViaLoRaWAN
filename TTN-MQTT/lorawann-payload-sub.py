@@ -8,7 +8,7 @@ import random
 from datetime import datetime
 import logging
 import base64
-
+import sqlite3
 
 ###
 #User = "lorawan-reklamation@ttn"
@@ -16,9 +16,29 @@ import base64
 
 APP_ID = "test-new-lorawan-meter@ttn"
 ACCESS_KEY  = "NNSXS.EZU3DMV7RUYRTARJDCCSBQBMO5NR4BW7BGWKHSA.3BOTSIMIWAB3RT2QZR47P43PYEFPCGCTXR3GDBDZPTCCMT64NY5A"
+
+
 PUBLIC_TLS_ADDRESS = "eu1.cloud.thethings.network"
 PUBLIC_TLS_ADDRESS_PORT = "8883"
 REGION = "EU1"
+
+conn = sqlite3.connect('test-new-lorawan-meter.db')
+cursor = conn.cursor()
+cursor.execute(
+    '''
+CREATE TABLE device_data (
+    received_at TEXT NOT NULL,      
+    application_id TEXT NOT NULL,   
+    device_id TEXT NOT NULL,        
+    payload BLOB,                   
+    f_cnt INTEGER,                  
+    rssi INTEGER,                   
+    snr REAL,                       
+    consumed_airtime REAL 
+    ) 
+'''
+)
+
 
 def base64_to_hex(base64_data):
     # decode Base64 data
@@ -42,38 +62,10 @@ def parse_payload_from_msg(msg_json):
     data_rate_index = uplink_message["settings"]["data_rate"]
     consumed_airtime = uplink_message["consumed_airtime"]
 
-    return received_at,application_id,device_id,payload,f_cnt,f_port
+    return received_at,application_id,device_id,payload,f_cnt,rssi,snr,consumed_airtime
 
-class OnlineAnomalyDetector:
-    def __init__(self, threshold):
-        self.previous_value = None
-        self.threshold = threshold
-        self.anomalies = []
 
-    def process(self, timestamp, current_value):
-        # 首次处理时没有前一个值
-        if self.previous_value is None:
-            self.previous_value = current_value
-            return
-
-        # 检测电量消耗递减
-        if current_value < self.previous_value:
-            self.anomalies.append((timestamp, 'Consumption Decrease'))
-
-        # 检测电量消耗差距过大
-        if abs(current_value - self.previous_value) > self.threshold:
-            self.anomalies.append((timestamp, 'Excessive Consumption Difference'))
-
-        # 更新前一个值
-        self.previous_value = current_value
-
-    def get_anomalies(self):
-        return self.anomalies
-
-# 实例化检测器，假设阈值为10
-detector = OnlineAnomalyDetector(threshold=10)
-
-# 构造MQTT客户端连接TTN
+## 构造MQTT客户端连接TTN
 def on_connect(client, userdata, flags, rc):
     print(f"Connected with result code {rc}")
     # 订阅应用的主题以获取所有设备的数据
@@ -83,11 +75,20 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     #print(f"Topic: {msg.topic}\nPayload: {msg.payload.decode()}")
     msg_json = json.loads(msg.payload)
-    received_at,application_id,device_id,payload,f_cnt,f_port = parse_payload_from_msg(msg_json)
+    received_at,application_id,device_id,payload,f_cnt,rssi,snr,consumed_airtime = parse_payload_from_msg(msg_json)
     with open('payload.csv','a') as f:
         csv_writer = csv.writer(f)
-        csv_writer.writerow([received_at,application_id,device_id,payload,f_cnt,f_port])
-# 配置MQTT客户端
+        csv_writer.writerow([received_at,application_id,device_id,payload,f_cnt])
+
+    data = (received_at,application_id,device_id,payload,f_cnt,rssi,snr,consumed_airtime)
+    cursor.execute('''
+    INSERT INTO device_data (received_at, application_id, device_id, payload, f_cnt, rssi, snr, consumed_airtime)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+''', data)
+    conn.commit()
+
+
+# set up mqttt client
 client = mqtt.Client()
 client.username_pw_set(username=f"{APP_ID}@{REGION}", password=ACCESS_KEY)
 
@@ -96,14 +97,14 @@ client.on_message = on_message
 
 # 连接到TTN的MQTT代理
 client.connect(f"{REGION}.cloud.thethings.network", 1883, 60)
-client.subscribe('#',0) # all decice uplink
+client.subscribe('#',0) # all device uplink
 
 try:
-    running = True
-    while running:
-        client.loop(10)
-        print('.',end="",flush=True)
-
-except KeyboardInterrupt:
+   client.loop_forever()
+except Exception as e:
     print("Program exit.")
+    conn.close()
     sys.exit(0)
+finally:
+    client.disconnect()
+    conn.close()
