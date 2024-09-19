@@ -20,6 +20,9 @@ PUBLIC_TLS_ADDRESS = "eu1.cloud.thethings.network"
 PUBLIC_TLS_ADDRESS_PORT = "8883"
 REGION = "EU1"
 
+topic_push = 'v3/{application id}/devices/{device id}/down/push'
+
+
 def base64_to_hex(base64_data):
     # decode Base64 data
     binary_data = base64.b64decode(base64_data)  
@@ -98,10 +101,10 @@ def on_message(client, userdata, msg):
     with open('payload.csv','a') as f:
         csv_writer = csv.writer(f)
         csv_writer.writerow([received_at,application_id,device_id,payload,f_cnt,f_port])
+    
 # 配置MQTT客户端
 client = mqtt.Client()
 client.username_pw_set(username=f"{APP_ID}@{REGION}", password=ACCESS_KEY)
-
 client.on_connect = on_connect
 client.on_message = on_message
 
@@ -118,3 +121,32 @@ try:
 except KeyboardInterrupt:
     print("Program exit.")
     sys.exit(0)
+
+"""
+
+    conn = sqlite3.connect('test-new-lorawan-meter.db')
+    cursor = conn.cursor()
+    cursor.execute(
+        '''
+    CREATE TABLE device_data (
+        received_at TEXT NOT NULL,      
+        application_id TEXT NOT NULL,   
+        device_id TEXT NOT NULL,        
+        payload BLOB,                   
+        f_cnt INTEGER,                  
+        rssi INTEGER,                   
+        snr REAL,                       
+        consumed_airtime REAL 
+        ) 
+    '''
+    )
+
+    data = (received_at,application_id,device_id,payload,f_cnt,rssi,snr,consumed_airtime)
+    cursor.execute('''
+    INSERT INTO device_data (received_at, application_id, device_id, payload, f_cnt, rssi, snr, consumed_airtime)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+''', data)
+    conn.commit()
+    conn.close()
+
+"""

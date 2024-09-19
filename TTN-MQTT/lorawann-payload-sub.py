@@ -22,22 +22,6 @@ PUBLIC_TLS_ADDRESS = "eu1.cloud.thethings.network"
 PUBLIC_TLS_ADDRESS_PORT = "8883"
 REGION = "EU1"
 
-conn = sqlite3.connect('test-new-lorawan-meter.db')
-cursor = conn.cursor()
-cursor.execute(
-    '''
-CREATE TABLE device_data (
-    received_at TEXT NOT NULL,      
-    application_id TEXT NOT NULL,   
-    device_id TEXT NOT NULL,        
-    payload BLOB,                   
-    f_cnt INTEGER,                  
-    rssi INTEGER,                   
-    snr REAL,                       
-    consumed_airtime REAL 
-    ) 
-'''
-)
 
 
 def base64_to_hex(base64_data):
@@ -78,14 +62,8 @@ def on_message(client, userdata, msg):
     received_at,application_id,device_id,payload,f_cnt,rssi,snr,consumed_airtime = parse_payload_from_msg(msg_json)
     with open('payload.csv','a') as f:
         csv_writer = csv.writer(f)
-        csv_writer.writerow([received_at,application_id,device_id,payload,f_cnt])
+        csv_writer.writerow([received_at,application_id,device_id,payload,f_cnt,rssi,snr,consumed_airtime])
 
-    data = (received_at,application_id,device_id,payload,f_cnt,rssi,snr,consumed_airtime)
-    cursor.execute('''
-    INSERT INTO device_data (received_at, application_id, device_id, payload, f_cnt, rssi, snr, consumed_airtime)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-''', data)
-    conn.commit()
 
 
 # set up mqttt client
@@ -99,12 +77,35 @@ client.on_message = on_message
 client.connect(f"{REGION}.cloud.thethings.network", 1883, 60)
 client.subscribe('#',0) # all device uplink
 
+
+FIRST_RECONNECT_DELAY = 1
+RECONNECT_RATE = 2
+MAX_RECONNECT_COUNT = 12
+MAX_RECONNECT_DELAY = 60
+
+def on_disconnect(client, userdata, rc):
+    logging.info("Disconnected with result code: %s", rc)
+    reconnect_count, reconnect_delay = 0, FIRST_RECONNECT_DELAY
+    while reconnect_count < MAX_RECONNECT_COUNT:
+        logging.info("Reconnecting in %d seconds...", reconnect_delay)
+        time.sleep(reconnect_delay)
+
+        try:
+            client.reconnect()
+            logging.info("Reconnected successfully!")
+            return
+        except Exception as err:
+            logging.error("%s. Reconnect failed. Retrying...", err)
+
+        reconnect_delay *= RECONNECT_RATE
+        reconnect_delay = min(reconnect_delay, MAX_RECONNECT_DELAY)
+        reconnect_count += 1
+    logging.info("Reconnect failed after %s attempts. Exiting...", reconnect_count)
+
+
 try:
    client.loop_forever()
 except Exception as e:
-    print("Program exit.")
-    conn.close()
-    sys.exit(0)
+    print("Soomething happened:",e)
 finally:
-    client.disconnect()
-    conn.close()
+    client.on_disconnect = on_disconnect
