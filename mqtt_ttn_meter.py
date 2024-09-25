@@ -8,25 +8,29 @@ import paho.mqtt.client as mqtt
 from datetime import datetime
 
 # application settings
-APP_ID = os.getenv("APP_ID", "solhusene@ttn")
-ACCESS_KEY = os.getenv("ACCESS_KEY", "NNSXS.LMAIX5XT2RKDPWJ7YQ2LZHQISXNOWLHD3GLZZZQ.HL445QIQV3QTA23R5JXBUREBC2WUDZ5FJMNWJX2S53WTOYBPOWWQ")
-PUBLIC_TLS_ADDRESS = os.getenv("PUBLIC_TLS_ADDRESS", "eu1.cloud.thethings.network")
-PUBLIC_TLS_ADDRESS_PORT = int(os.getenv("PUBLIC_TLS_ADDRESS_PORT", "8883"))
-REGION = os.getenv("REGION", "EU1")
-
-downlink_sent_meter_list = ['lora-el-solh8-st-tv']
-#downlink commando for changing interval of data record 2 to 60min
-DATA2_INTERVAL = 0x080000
-
+APP_ID = "dtz541-zdcl-tester@ttn"
+ACCESS_KEY = "NNSXS.7DT2IDW3JDRAFZXUAWU6KIHX2A3SQNVVBAC2VCI.VL2CI4IMBFL47C6YKFHHXDHU276EHZTAC2J5JP4OJYWUFQ6H362A"
+PUBLIC_TLS_ADDRESS = "eu1.cloud.thethings.network"
+PUBLIC_TLS_ADDRESS_PORT = "1883"
+REGION = "EU1"
 
 # global settings
-LOG_FILE = "mqtt_client.log"
+LOG_FILE = "mqtt_client_" + APP_ID + ".log"
 CSV_DIR = "payloads"
 RECONNECT_MAX_ATTEMPTS = 12
 RECONNECT_DELAY = 1
 
-EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2 = 60 # unit: minute
-
+"""Task1: change uplink interval"""
+# here define the expected uplink interval
+# for old lora module firmware version, e.g. 2125, this uplink interval is suggested to 5-55 mins
+EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2 = None # unit: minute
+list_uplink_interval_datarecord2_changed = []
+"""Task2: """
+# here define if you want to correct the RTC(real time constant)
+RTC_TO_RESET = True
+RTC_changed_successfully_list = []
+#Note：
+# Considering the communication capacity, the above two tasks are best performed separately.
 
 # tool function：Base64 to Hex
 def base64_to_hex(base64_data):
@@ -50,11 +54,13 @@ def hex_to_base64(hex_in):
 
 def time_to_holley_downlink_hex(decimal_number,max_retry):
     try:
-        # check if input is between 5-500
-        if not isinstance(decimal_number, int) or not (5 <= decimal_number <= 500):
-            logging.error(f"Invalid input: {decimal_number}. Must be an integer between 5 and 500.")
+        # check if input is between 5-55
+        if not isinstance(decimal_number, int) or not (5 <= decimal_number <= 55):
+            logging.error(f"Invalid input: {decimal_number}. Must be an integer between 5 and 55.")
             return None
-        
+        if not isinstance(max_retry, int) or not (0 <= max_retry <= 255):
+            logging.error(f"Invalid max_retry: {max_retry}. Must be an integer between 0 and 255.")
+            return None
         hex_part = f"{decimal_number:08X}"
         
         downlink_hex = f"08{hex_part}00000000{max_retry}"
@@ -63,13 +69,6 @@ def time_to_holley_downlink_hex(decimal_number,max_retry):
     except Exception as e:
         logging.error(f"Error converting decimal to custom hex: {e}")
         return None
-reset_RTC_cmd1 = '040800401D017F00FF00E8'
-reset_RTC_cmd2 = '010401401D0164'
-reset_RTC_cmd3 = '040404401084E0' #this will make lorawann module reboot
-
-reset_RTC_cmd1_base64 = hex_to_base64(reset_RTC_cmd1)
-reset_RTC_cmd2_base64 = hex_to_base64(reset_RTC_cmd2)
-reset_RTC_cmd3_base64 = hex_to_base64(reset_RTC_cmd3)
 
 # create CSV DIR
 os.makedirs(CSV_DIR, exist_ok=True)
@@ -114,13 +113,14 @@ class MqttClientHandler:
         else:
             logging.error(f"Failed to connect, return code {rc}")
 
-    def send_downlink_msg(self,device_id,downlink_cmd_base64):
+    def send_downlink_msg(self,device_id,downlink_cmd_base64,f_port=2):
         try:
             # this works only for ttn. See below website for more topics
             # https://www.thethingsindustries.com/docs/integrations/mqtt/#subscribing-to-upstream-traffic
-            topic_down = f'v3/{APP_ID}/devices/{device_id}/down/replace'
-            context_downlink_changeInterval = '{"downlinks":[{"f_port": 2,"frm_payload":{downlink_cmd_base64},"priority": "NORMAL"}]}'
-            logging.info(f"Reset cmd{downlink_cmd_base64} sent to {device_id}")
+            topic_down = f'v3/{self.app_id}/devices/{device_id}/down/replace'
+            context_downlink = '{"downlinks":[{"f_port": {f_port},"frm_payload":{downlink_cmd_base64},"priority": "NORMAL"}]}'
+            self.client.publish(topic_down, context_downlink)
+            logging.info(f"Downlink cmd{downlink_cmd_base64} sent to {device_id}")
         except Exception as e:
             logging.error(f"Error sending downlink message to device {device_id}: {e}")
 
@@ -130,14 +130,13 @@ class MqttClientHandler:
             data = self.parse_payload_from_msg(msg_json)
             if data:
                 received_at, application_id, device_id, payload, f_cnt, rssi, snr, consumed_airtime = data
+                
+                #Here to save all the paylaod to a csv file.
                 self.save_payload(application_id, [received_at, device_id, payload, f_cnt, rssi, snr, consumed_airtime])
-                if device_id not in self.downlink_sent_list:
-                    self.send_downlink_msg(self,device_id,reset_RTC_cmd1_base64)
-                    time.sleep(0.2)
-                    self.send_downlink_msg(self,device_id,reset_RTC_cmd2_base64)
-                    time.sleep(0.2)
-                    self.send_downlink_msg(self,device_id,reset_RTC_cmd3_base64)
-
+                
+                if RTC_TO_RESET:
+                    self.send_rtc_cmd(self,payload,device_id)
+                    logging.debug('The RTC of {RTC_changed_successfully_list[-1]} was successfully changed!' )
         except json.JSONDecodeError as e:
             logging.error(f"Error decoding JSON: {e}")
         except Exception as e:
@@ -194,11 +193,47 @@ class MqttClientHandler:
             logging.info(f"Data saved for device {data[1]}")
         except Exception as e:
             logging.error(f"Failed to save data for device {data[1]}: {e}")
+    
+    def send_rtc_cmd(self,payload,device_id):
 
+        # commands set in hex code
+        commands = {
+            "cmd1": '040800401D017F00FF00E8',
+            "cmd2": '010401401D0164',
+            "cmd3": '040404401084E0'  # This will make LoRaWAN module reboot
+        }
 
+        # change hex cmd to Base64 cmd
+        commands_base64 = {key: hex_to_base64(value) for key, value in commands.items()}
 
+        if device_id not in RTC_changed_successfully_list:
+            if payload == '840500401D0101E8':
+                # cmd1 was successfully received by meter, send cmd2
+                logging.info(f"Device {device_id}: cmd1 successfully received. Sending cmd2: {commands_base64['cmd2']}")
+                # send cmd2
+                self.send_downlink_msg(self,device_id,commands_base64['cmd2'])
+            elif payload == 'C40400401D0126':
+                # cmd1 failed, send cmd1 again
+                logging.warning(f"Device {device_id}: cmd1 failed. Retrying sending cmd1:{commands_base64['cmd1']}")
+                self.send_downlink_msg(self,device_id,commands_base64['cmd1'])
+            elif payload == '810801401D017F00FF0066':
+                # cmd2 was successfully received, send cmd3 to reboot module
+                logging.info(f"Device {device_id}: cmd2 successfully received. Sending cmd3 (reboot): {commands_base64['cmd3']}")
+                self.send_downlink_msg(self,device_id,commands_base64["cmd3"])
+                RTC_changed_successfully_list.append(device_id)
+                logging.info(f"RTC changed successfully for devices: {RTC_changed_successfully_list[-1]}")
+            elif payload == 'C10401401D0124':
+                # cmd2 failed, retry cmd2
+                logging.warning(f"Device {device_id}: cmd2 failed. Retrying cmd2: {commands_base64['cmd2']}")
+                self.send_downlink_msg(self,device_id,commands_base64['cmd2'])
+            else:
+                #send cmd1
+                logging.warning(f"Device {device_id}: Received normal payload: {payload}, try to send cmd1:{commands_base64['cmd1']}")
+                self.send_downlink_msg(self,device_id,commands_base64["cmd1"])
+
+    
 # run MQTT client
 if __name__ == "__main__":
 
-    mqtt_client_handler = MqttClientHandler(APP_ID, ACCESS_KEY, PUBLIC_TLS_ADDRESS, PUBLIC_TLS_ADDRESS_PORT, REGION,downlink_sent_meter_list)
+    mqtt_client_handler = MqttClientHandler(APP_ID, ACCESS_KEY, PUBLIC_TLS_ADDRESS, PUBLIC_TLS_ADDRESS_PORT, REGION,RTC_changed_successfully_list)
     mqtt_client_handler.start()
