@@ -11,9 +11,10 @@ from datetime import datetime
 APP_ID = "dtz541-zdcl-tester@ttn"
 ACCESS_KEY = "NNSXS.7DT2IDW3JDRAFZXUAWU6KIHX2A3SQNVVBAC2VCI.VL2CI4IMBFL47C6YKFHHXDHU276EHZTAC2J5JP4OJYWUFQ6H362A"
 PUBLIC_TLS_ADDRESS = "eu1.cloud.thethings.network"
-PUBLIC_TLS_ADDRESS_PORT = "1883"
+PUBLIC_TLS_ADDRESS_PORT = 1883 # this must be int. otherwise Unexpected error occurred: '<=' not supported between instances of 'str' and 'int'
 REGION = "EU1"
 
+# global settings
 # global settings
 LOG_FILE = "mqtt_client_" + APP_ID + ".log"
 CSV_DIR = "payloads"
@@ -52,7 +53,7 @@ def hex_to_base64(hex_in):
         logging.error(f"Error converting Hex to Base64: {e}")
         return None
 
-def time_to_holley_downlink_hex(decimal_number,max_retry):
+def time_to_holley_downlink_hex(decimal_number,max_retry=3):
     try:
         # check if input is between 5-55
         if not isinstance(decimal_number, int) or not (5 <= decimal_number <= 55):
@@ -65,7 +66,7 @@ def time_to_holley_downlink_hex(decimal_number,max_retry):
         
         downlink_hex = f"08{hex_part}00000000{max_retry}"
         
-        return downlink_hex
+        return bytes.fromhex(downlink_hex)
     except Exception as e:
         logging.error(f"Error converting decimal to custom hex: {e}")
         return None
@@ -76,7 +77,7 @@ os.makedirs(CSV_DIR, exist_ok=True)
 # log file setting
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s %(message)s',
-                    handlers=[logging.FileHandler(LOG_FILE), logging.StreamHandler()])
+                    handlers=[logging.FileHandler(LOG_FILE, encoding='utf-8')])
 
 
 class MqttClientHandler:
@@ -99,6 +100,7 @@ class MqttClientHandler:
     def start(self):
         try:
             self.client.connect(self.address, self.port, 60)
+            self.client.subscribe('#',0) # all device uplink
             self.client.loop_forever()
         except Exception as e:
             logging.error(f"Unexpected error occurred: {e}")
@@ -207,22 +209,22 @@ class MqttClientHandler:
         commands_base64 = {key: hex_to_base64(value) for key, value in commands.items()}
 
         if device_id not in RTC_changed_successfully_list:
-            if payload == '840500401D0101E8':
+            if payload == 0x840500401D0101E8:
                 # cmd1 was successfully received by meter, send cmd2
                 logging.info(f"Device {device_id}: cmd1 successfully received. Sending cmd2: {commands_base64['cmd2']}")
                 # send cmd2
                 self.send_downlink_msg(self,device_id,commands_base64['cmd2'])
-            elif payload == 'C40400401D0126':
+            elif payload == 0xC40400401D0126:
                 # cmd1 failed, send cmd1 again
                 logging.warning(f"Device {device_id}: cmd1 failed. Retrying sending cmd1:{commands_base64['cmd1']}")
                 self.send_downlink_msg(self,device_id,commands_base64['cmd1'])
-            elif payload == '810801401D017F00FF0066':
+            elif payload == 0x810801401D017F00FF0066:
                 # cmd2 was successfully received, send cmd3 to reboot module
                 logging.info(f"Device {device_id}: cmd2 successfully received. Sending cmd3 (reboot): {commands_base64['cmd3']}")
                 self.send_downlink_msg(self,device_id,commands_base64["cmd3"])
                 RTC_changed_successfully_list.append(device_id)
                 logging.info(f"RTC changed successfully for devices: {RTC_changed_successfully_list[-1]}")
-            elif payload == 'C10401401D0124':
+            elif payload == 0xC10401401D0124:
                 # cmd2 failed, retry cmd2
                 logging.warning(f"Device {device_id}: cmd2 failed. Retrying cmd2: {commands_base64['cmd2']}")
                 self.send_downlink_msg(self,device_id,commands_base64['cmd2'])
