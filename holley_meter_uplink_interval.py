@@ -24,14 +24,24 @@ import paho.mqtt.publish as publish
 import contextlib
 # application settings
 APP_ID = "test-new-lorawan-meter@ttn"
-ACCESS_KEY = "NNSXS.INRWPGNRQD4QJUS54BQA2ZTBUU5I7T5LIMRSA5Q.H3C5QN3IRRSUEHXJCJ4VEJFGEQAM3BB4RCYVRNKNJLIOAR2KRM5Q"
+ACCESS_KEY = "NNSXS.QGXFCGLMZ5Q3DTBGPJ4IBUKALQCHYWWTSWRZUEQ.TDTJY52P5SG6DJN2LD3WATQTWPWMVRZRX2WGUT5RNOUOYWKYNEFQ"
 PUBLIC_TLS_ADDRESS = "eu1.cloud.thethings.network"
 PUBLIC_TLS_ADDRESS_PORT = 1883 # this must be int. otherwise Unexpected error occurred: '<=' not supported between instances of 'str' and 'int'
 REGION = "EU1"
 
 # global settings
-LOG_FILE = "mqtt_client_" + APP_ID + ".log"
+
+LOG_DIR = 'mqtt_client_log'
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+LOG_FILE= os.path.join(LOG_DIR, f'log_{APP_ID}.log')
+
+
+# create CSV DIR
 CSV_DIR = "payloads"
+os.makedirs(CSV_DIR, exist_ok=True)
+
 RECONNECT_MAX_ATTEMPTS = 12
 RECONNECT_DELAY = 1 
 
@@ -39,9 +49,11 @@ RECONNECT_DELAY = 1
 # here define the expected uplink interval
 # for old lora module firmware version, e.g. 2125, this uplink interval is suggested to 5-55 mins
 # for FW2125, the downlink time window is 2/3 uplink interval. By default 15mins uplink interval, once the uplink msg is received, one must send downlink command in 10mins 
-EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2 = 5 # unit: minute
+
+#EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2 = None  #when RTC_TO_RESET = True
+EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2 = None # unit: minute; when RTC_TO_RESET = False
 list_uplink_interval_datarecord2_changed = []
-"""Task2: """
+"""Task2: Reset RTC parameter and reboot LoRaWAN module """
 # here define if you want to correct the RTC(real time constant)
 RTC_TO_RESET = False
 RTC_changed_successfully_list = []
@@ -68,26 +80,24 @@ def hex_to_base64(hex_in):
         logging.error(f"Error converting Hex to Base64: {e}")
         return None
 
-def time_to_holley_downlink_hex(decimal_number,max_retry=3):
+
+def time_to_holley_downlink_hex(unconfirmed_interval,confirmed_interval=0,max_retry=3):
     try:
         # check if input is between 5-55
-        if not isinstance(decimal_number, int) or not (5 <= decimal_number <= 55):
-            logging.error(f"Invalid input: {decimal_number}. Must be an integer between 5 and 55.")
-            return None
+        if not isinstance(unconfirmed_interval, int) or not (5 <= unconfirmed_interval <= 55):
+            logging.error(f"Invalid input: {unconfirmed_interval}. Must be an integer between 5 and 55.")
+            unconfirmed_interval = 15
         if not isinstance(max_retry, int) or not (0 <= max_retry <= 255):
             logging.error(f"Invalid max_retry: {max_retry}. Must be an integer between 0 and 255.")
             return None
-        hex_part = f"{decimal_number:08X}"
-        max_retry_hex = f"{max_retry:02X}"
-        downlink_hex = f"08{hex_part}00000000{max_retry_hex}"
-        
-        return bytes.fromhex(downlink_hex)
+        hex_bytes_unconfirmed_interval = unconfirmed_interval.to_bytes(4, 'big')
+        prefix = 0x08.to_bytes(1,'big')
+        hex_bytes_confirmed_interval = confirmed_interval.to_bytes(4,'big')
+        hex_bytes_max_try = max_retry.to_bytes(1,'big')
+        return prefix + hex_bytes_unconfirmed_interval + hex_bytes_confirmed_interval + hex_bytes_max_try
     except Exception as e:
         logging.error(f"Error converting decimal to custom hex: {e}")
         return None
-
-# create CSV DIR
-os.makedirs(CSV_DIR, exist_ok=True)
 
 # log file setting
 logging.basicConfig(level=logging.DEBUG,
@@ -159,12 +169,14 @@ class MqttClientHandler:
                 if isinstance(EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2, int) and device_id not in list_uplink_interval_datarecord2_changed:
                     downlink_interval_hex = time_to_holley_downlink_hex(EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2)
                     if downlink_interval_hex:
+
                         downlink_interval_base64 = hex_to_base64(downlink_interval_hex.hex())
-                        self.send_downlink_msg(device_id,downlink_interval_base64)
+                        self.send_downlink_msg(device_id,downlink_interval_base64) #here if put self in funcion,the function will take the address of self as devide_id
                         list_uplink_interval_datarecord2_changed.append(device_id)
+
                         logging.debug(f"CMD {downlink_interval_hex} was sent to {device_id}!")
                         logging.debug(f'CMD {downlink_interval_base64} was sent to {device_id}!')
-                        logging.info(f'The uplink interval for {device_id} was changed to {EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2} mins!')
+                        logging.debug(f'The uplink interval for {device_id} was changed to {EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2} mins!')
                     else:
                         logging.error("Failed to generate downlink command.")
 
