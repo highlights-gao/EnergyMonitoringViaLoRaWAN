@@ -23,8 +23,8 @@ from datetime import datetime
 import paho.mqtt.publish as publish
 import contextlib
 # application settings
-APP_ID = "test-new-lorawan-meter@ttn"
-ACCESS_KEY = "NNSXS.QGXFCGLMZ5Q3DTBGPJ4IBUKALQCHYWWTSWRZUEQ.TDTJY52P5SG6DJN2LD3WATQTWPWMVRZRX2WGUT5RNOUOYWKYNEFQ"
+APP_ID = "ehz541-zel-10@ttn"
+ACCESS_KEY = "NNSXS.G6GQRADSZGMGR4QFQP6MSL5BQ4E7XTYQLW7V5IY.VYSTNTDMW6VSMC7FOLSWVHYAUMH3KXOAHU74HXEWB5Y2G6B2TNMA"
 PUBLIC_TLS_ADDRESS = "eu1.cloud.thethings.network"
 PUBLIC_TLS_ADDRESS_PORT = 1883 # this must be int. otherwise Unexpected error occurred: '<=' not supported between instances of 'str' and 'int'
 REGION = "EU1"
