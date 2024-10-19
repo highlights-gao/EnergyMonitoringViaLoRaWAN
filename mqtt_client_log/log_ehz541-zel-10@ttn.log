@@ -1,1 +1,111 @@
 2024-09-29 15:55:52,218 INFO Connected to broker with result code 0
+2024-09-29 15:58:44,954 INFO Data saved for device 1hly0302196393
+2024-09-29 15:58:44,954 ERROR Error processing message: 'str' object has no attribute 'hex'
+2024-09-29 16:00:25,148 INFO Data saved for device 1hly0302196392
+2024-09-29 16:00:25,148 ERROR Error processing message: 'str' object has no attribute 'hex'
+2024-09-29 16:00:32,425 INFO Data saved for device 1hly0302196396
+2024-09-29 16:00:32,425 ERROR Error processing message: 'str' object has no attribute 'hex'
+2024-09-29 16:03:26,747 INFO Data saved for device 1hly0302196387
+2024-09-29 16:03:26,748 ERROR Error processing message: 'str' object has no attribute 'hex'
+2024-09-29 16:05:06,023 INFO Data saved for device 1hly0302196391
+2024-09-29 16:05:06,023 ERROR Error processing message: 'str' object has no attribute 'hex'
+2024-09-29 16:05:39,838 INFO Data saved for device 1hly0302196389
+2024-09-29 16:05:39,838 ERROR Error processing message: 'str' object has no attribute 'hex'
+2024-09-29 16:07:12,958 INFO Connected to broker with result code 0
+2024-09-29 16:07:50,922 INFO Data saved for device 1hly0302196395
+2024-09-29 16:07:51,017 INFO Downlink cmd sent to 1hly0302196395
+2024-09-29 16:07:51,017 DEBUG CMD 08000000050000000003 was sent to 1hly0302196395!
+2024-09-29 16:07:51,017 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196395!
+2024-09-29 16:07:51,017 DEBUG The uplink interval for 1hly0302196395 was changed to 5 mins!
+2024-09-29 16:08:56,145 INFO Data saved for device 1hly0302196390
+2024-09-29 16:08:56,258 INFO Downlink cmd sent to 1hly0302196390
+2024-09-29 16:08:56,259 DEBUG CMD 08000000050000000003 was sent to 1hly0302196390!
+2024-09-29 16:08:56,259 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196390!
+2024-09-29 16:08:56,259 DEBUG The uplink interval for 1hly0302196390 was changed to 5 mins!
+2024-09-29 16:10:04,356 INFO Data saved for device 1hly0302196394
+2024-09-29 16:10:04,456 INFO Downlink cmd sent to 1hly0302196394
+2024-09-29 16:10:04,456 DEBUG CMD 08000000050000000003 was sent to 1hly0302196394!
+2024-09-29 16:10:04,456 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196394!
+2024-09-29 16:10:04,456 DEBUG The uplink interval for 1hly0302196394 was changed to 5 mins!
+2024-09-29 16:10:31,843 ERROR Missing key in message JSON: 'uplink_message'
+2024-09-29 16:10:36,563 INFO Data saved for device 1hly0302196388
+2024-09-29 16:10:36,678 INFO Downlink cmd sent to 1hly0302196388
+2024-09-29 16:10:36,678 DEBUG CMD 08000000050000000003 was sent to 1hly0302196388!
+2024-09-29 16:10:36,678 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196388!
+2024-09-29 16:10:36,678 DEBUG The uplink interval for 1hly0302196388 was changed to 5 mins!
+2024-09-29 16:13:44,821 INFO Data saved for device 1hly0302196393
+2024-09-29 16:13:44,927 INFO Downlink cmd sent to 1hly0302196393
+2024-09-29 16:13:44,927 DEBUG CMD 08000000050000000003 was sent to 1hly0302196393!
+2024-09-29 16:13:44,927 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196393!
+2024-09-29 16:13:44,927 DEBUG The uplink interval for 1hly0302196393 was changed to 5 mins!
+2024-09-29 16:15:22,053 INFO Connected to broker with result code 0
+2024-09-29 16:15:25,044 INFO Data saved for device 1hly0302196392
+2024-09-29 16:15:25,129 INFO Downlink cmd sent to 1hly0302196392
+2024-09-29 16:15:25,129 DEBUG CMD 08000000050000000003 was sent to 1hly0302196392!
+2024-09-29 16:15:25,129 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196392!
+2024-09-29 16:15:25,129 DEBUG The uplink interval for 1hly0302196392 was changed to 5 mins!
+2024-09-29 16:15:32,319 INFO Data saved for device 1hly0302196396
+2024-09-29 16:15:32,427 INFO Downlink cmd sent to 1hly0302196396
+2024-09-29 16:15:32,427 DEBUG CMD 08000000050000000003 was sent to 1hly0302196396!
+2024-09-29 16:15:32,427 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196396!
+2024-09-29 16:15:32,427 DEBUG The uplink interval for 1hly0302196396 was changed to 5 mins!
+2024-09-29 16:18:26,609 INFO Data saved for device 1hly0302196387
+2024-09-29 16:18:26,721 INFO Downlink cmd sent to 1hly0302196387
+2024-09-29 16:18:26,722 DEBUG CMD 08000000050000000003 was sent to 1hly0302196387!
+2024-09-29 16:18:26,722 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196387!
+2024-09-29 16:18:26,722 DEBUG The uplink interval for 1hly0302196387 was changed to 5 mins!
+2024-09-29 16:31:34,451 INFO Connected to broker with result code 0
+2024-09-29 16:33:26,510 INFO Data saved for device 1hly0302196387
+2024-09-29 16:33:26,510 INFO Downlink cmd sent to 1hly0302196387
+2024-09-29 16:33:26,510 DEBUG CMD 08000000050000000003 was sent to 1hly0302196387!
+2024-09-29 16:33:26,510 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196387!
+2024-09-29 16:33:26,510 DEBUG The uplink interval for 1hly0302196387 was changed to 5 mins!
+2024-09-29 16:35:05,801 INFO Data saved for device 1hly0302196391
+2024-09-29 16:35:05,801 INFO Downlink cmd sent to 1hly0302196391
+2024-09-29 16:35:05,801 DEBUG CMD 08000000050000000003 was sent to 1hly0302196391!
+2024-09-29 16:35:05,801 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196391!
+2024-09-29 16:35:05,802 DEBUG The uplink interval for 1hly0302196391 was changed to 5 mins!
+2024-09-29 16:35:39,559 INFO Data saved for device 1hly0302196389
+2024-09-29 16:35:39,560 INFO Downlink cmd sent to 1hly0302196389
+2024-09-29 16:35:39,560 DEBUG CMD 08000000050000000003 was sent to 1hly0302196389!
+2024-09-29 16:35:39,560 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196389!
+2024-09-29 16:35:39,560 DEBUG The uplink interval for 1hly0302196389 was changed to 5 mins!
+2024-09-29 16:37:50,701 INFO Data saved for device 1hly0302196395
+2024-09-29 16:37:50,701 INFO Downlink cmd sent to 1hly0302196395
+2024-09-29 16:37:50,701 DEBUG CMD 08000000050000000003 was sent to 1hly0302196395!
+2024-09-29 16:37:50,701 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196395!
+2024-09-29 16:37:50,701 DEBUG The uplink interval for 1hly0302196395 was changed to 5 mins!
+2024-09-29 16:38:55,927 INFO Data saved for device 1hly0302196390
+2024-09-29 16:38:55,927 INFO Downlink cmd sent to 1hly0302196390
+2024-09-29 16:38:55,927 DEBUG CMD 08000000050000000003 was sent to 1hly0302196390!
+2024-09-29 16:38:55,928 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196390!
+2024-09-29 16:38:55,928 DEBUG The uplink interval for 1hly0302196390 was changed to 5 mins!
+2024-09-29 16:40:04,135 INFO Data saved for device 1hly0302196394
+2024-09-29 16:40:04,135 INFO Downlink cmd sent to 1hly0302196394
+2024-09-29 16:40:04,135 DEBUG CMD 08000000050000000003 was sent to 1hly0302196394!
+2024-09-29 16:40:04,135 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196394!
+2024-09-29 16:40:04,135 DEBUG The uplink interval for 1hly0302196394 was changed to 5 mins!
+2024-09-29 16:40:36,377 INFO Data saved for device 1hly0302196388
+2024-09-29 16:40:36,377 INFO Downlink cmd sent to 1hly0302196388
+2024-09-29 16:40:36,378 DEBUG CMD 08000000050000000003 was sent to 1hly0302196388!
+2024-09-29 16:40:36,378 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196388!
+2024-09-29 16:40:36,378 DEBUG The uplink interval for 1hly0302196388 was changed to 5 mins!
+2024-09-29 16:43:44,593 INFO Data saved for device 1hly0302196393
+2024-09-29 16:43:44,593 INFO Downlink cmd sent to 1hly0302196393
+2024-09-29 16:43:44,594 DEBUG CMD 08000000050000000003 was sent to 1hly0302196393!
+2024-09-29 16:43:44,594 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196393!
+2024-09-29 16:43:44,594 DEBUG The uplink interval for 1hly0302196393 was changed to 5 mins!
+2024-09-29 16:45:04,100 INFO Data saved for device 1hly0302196394
+2024-09-29 16:45:24,807 INFO Data saved for device 1hly0302196392
+2024-09-29 16:45:24,807 INFO Downlink cmd sent to 1hly0302196392
+2024-09-29 16:45:24,808 DEBUG CMD 08000000050000000003 was sent to 1hly0302196392!
+2024-09-29 16:45:24,808 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196392!
+2024-09-29 16:45:24,808 DEBUG The uplink interval for 1hly0302196392 was changed to 5 mins!
+2024-09-29 16:45:32,087 INFO Data saved for device 1hly0302196396
+2024-09-29 16:45:32,087 INFO Downlink cmd sent to 1hly0302196396
+2024-09-29 16:45:32,088 DEBUG CMD 08000000050000000003 was sent to 1hly0302196396!
+2024-09-29 16:45:32,088 DEBUG CMD CAAAAAUAAAAAAw== was sent to 1hly0302196396!
+2024-09-29 16:45:32,088 DEBUG The uplink interval for 1hly0302196396 was changed to 5 mins!
+2024-09-29 16:48:26,375 INFO Data saved for device 1hly0302196387
+2024-09-29 16:50:04,055 INFO Data saved for device 1hly0302196394
+2024-09-29 16:50:05,760 INFO Data saved for device 1hly0302196391

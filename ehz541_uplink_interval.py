@@ -148,11 +148,12 @@ class MqttClientHandler:
         try:
             # this works only for ttn. See below website for more topics
             # https://www.thethingsindustries.com/docs/integrations/mqtt/#subscribing-to-upstream-traffic
-            topic_down = f'v3/{self.app_id}/devices/{device_id}/down/replace'
+            topic_down = f'v3/{self.app_id}/devices/{device_id}/down/push'
             context_downlink = '{"downlinks":[{"f_port": {f_port},"frm_payload":{downlink_cmd_base64},"priority": "NORMAL"}]}'
         
-            auth = auth={'username':self.app_id,'password':self.access_key}
-            publish.single(topic_down, context_downlink,hostname=self.address,port=1883,auth=auth)
+            #auth ={'username':self.app_id,'password':self.access_key}
+            #publish.single(topic_down, context_downlink,hostname=self.address,port=1883,auth=auth)
+            self.client.publish(topic_down, context_downlink, qos=1)
             logging.info(f"Downlink cmd sent to {device_id}")
         except Exception as e:
             logging.error(f"Error sending downlink message to device {device_id}: {e}")
@@ -171,7 +172,7 @@ class MqttClientHandler:
                     downlink_interval_hex = time_to_holley_downlink_hex(EXPECTATION_UPLINK_INTERVAL_DATA_RECORD2)
                     if downlink_interval_hex:
 
-                        downlink_interval_base64 = hex_to_base64(downlink_interval_hex.hex())
+                        downlink_interval_base64 = hex_to_base64(downlink_interval_hex)
                         self.send_downlink_msg(device_id,downlink_interval_base64) #here if put self in funcion,the function will take the address of self as devide_id
                         list_uplink_interval_datarecord2_changed.append(device_id)
 
